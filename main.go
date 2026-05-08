@@ -4,14 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"github.com/ajr-cabbage/pokedex/internal/pokeapi"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	conf := config{
-		next: "https://pokeapi.co/api/v2/location-area",
-		previous: nil
+		next:     "https://pokeapi.co/api/v2/location-area",
+		previous: "",
 	}
 	for {
 		var input string
@@ -25,7 +24,7 @@ func main() {
 		if ok {
 			err := cmd.callback(&conf)
 			if err != nil {
-				fmt.Errorf("Error: %w", err)
+				fmt.Printf("Error: %v", err)
 			}
 		} else {
 			fmt.Println("Unknown command")
