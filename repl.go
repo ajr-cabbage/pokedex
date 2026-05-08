@@ -4,12 +4,19 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"errors"
+	"github.com/ajr-cabbage/pokedex/internal/pokeapi"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*c config) error
+}
+
+type config struct {
+	next	  string
+	previous  string
 }
 
 func getCommands() map[string]cliCommand {
@@ -26,6 +33,19 @@ func getCommands() map[string]cliCommand {
 		description: "Displays a help message",
 		callback:    commandHelp,
 	}
+	
+	commands["map"] = cliCommand{
+		name:	     "map",
+		description: "Displays next 20 location areas",
+		callback:    commandMap,
+	}
+	
+	commands["mapb"] = cliCommand{
+		name:	     "mapb",
+		description: "Displays previous 20 location areas",
+		callback:    commandMapb 
+	}
+	
 	return commands
 }
 
@@ -36,17 +56,55 @@ func cleanInput(text string) []string {
 }
 
 // exit the program
-func commandExit() error {
+func commandExit(*c config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
 // display the help message
-func commandHelp() error {
+func commandHelp(*c config) error {
 	fmt.Print("Welcome to the Pokedex!\nUsage:\n\n")
 	for _, cmd := range getCommands() {
 		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
 	}
 	return nil
 }
+
+// display next 20 location areas
+func commandMap(*c config) error {
+	areas, err := GetLocationAreas(c.next)
+	if err != nil {
+		return err
+	}
+	
+	c.previous = areas.Previous
+	c.next = areas.Next
+	
+	for _, loc := range(areas.Results) {
+		fmt.Printf(%s\n, loc.Name)
+	}
+	return nil
+}
+
+// display prev 20 location areas
+func commandMapb(*c config) error {
+	if c.previous == nil {
+		fmt.Println("you're on the first page")
+		return nil
+	}
+	areas, err := GetLocationAreas(c.previous)
+	if err != nil {
+		return err
+	}
+	
+	c.previous = areas.Previous
+	c.next = areas.Next
+	
+	for _, loc := range(areas.Results) {
+		fmt.Printf(%s\n, loc.Name)
+	}
+	return nil
+}
+
+
