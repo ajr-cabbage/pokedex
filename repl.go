@@ -6,17 +6,19 @@ import (
 	"strings"
 
 	"github.com/ajr-cabbage/pokedex/internal/pokeapi"
+	"github.com/ajr-cabbage/pokedex/internal/pokecache"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*Config) error
 }
 
-type config struct {
+type Config struct {
 	next     string
 	previous string
+	cache    *pokecache.Cache
 }
 
 func getCommands() map[string]cliCommand {
@@ -56,14 +58,14 @@ func cleanInput(text string) []string {
 }
 
 // exit the program
-func commandExit(c *config) error {
+func commandExit(c *Config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
 // display the help message
-func commandHelp(c *config) error {
+func commandHelp(c *Config) error {
 	fmt.Print("Welcome to the Pokedex!\nUsage:\n\n")
 	for _, cmd := range getCommands() {
 		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
@@ -72,13 +74,13 @@ func commandHelp(c *config) error {
 }
 
 // display next 20 location areas
-func commandMap(c *config) error {
+func commandMap(c *Config) error {
 	if c.next == "" {
 		fmt.Println("you're on the last page")
 		return nil
 	}
 
-	areas, err := pokeapi.GetLocationAreas(c.next)
+	areas, err := pokeapi.GetLocationAreas(c.next, c.cache)
 	if err != nil {
 		return err
 	}
@@ -102,13 +104,13 @@ func commandMap(c *config) error {
 }
 
 // display prev 20 location areas
-func commandMapb(c *config) error {
+func commandMapb(c *Config) error {
 	if c.previous == "" {
 		fmt.Println("you're on the first page")
 		return nil
 	}
 
-	areas, err := pokeapi.GetLocationAreas(c.previous)
+	areas, err := pokeapi.GetLocationAreas(c.previous, c.cache)
 	if err != nil {
 		return err
 	}

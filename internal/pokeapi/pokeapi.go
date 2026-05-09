@@ -5,6 +5,8 @@ import (
 	"errors"
 	"io"
 	"net/http"
+
+	"github.com/ajr-cabbage/pokedex/internal/pokecache"
 )
 
 type LocationAreas struct {
@@ -19,7 +21,15 @@ type Results struct {
 	URL  string `json:"url"`
 }
 
-func GetLocationAreas(url string) (LocationAreas, error) {
+func GetLocationAreas(url string, cache *pokecache.Cache) (LocationAreas, error) {
+	cacheRes, ok := cache.Get(url)
+	if ok {
+		areas := LocationAreas{}
+		err := json.Unmarshal(cacheRes, &areas)
+		if err == nil {
+			return areas, nil
+		}
+	}
 	res, err := http.Get(url)
 	if err != nil {
 		return LocationAreas{}, err

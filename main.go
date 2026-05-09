@@ -4,13 +4,17 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
+
+	"github.com/ajr-cabbage/pokedex/internal/pokecache"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	conf := config{
+	conf := Config{
 		next:     "https://pokeapi.co/api/v2/location-area",
 		previous: "",
+		cache:    pokecache.NewCache(5 * time.Second),
 	}
 	for {
 		var input string
