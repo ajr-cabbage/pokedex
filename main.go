@@ -26,9 +26,9 @@ func main() {
 		validCommands := getCommands()
 		cmd, ok := validCommands[inputWords[0]]
 		if ok {
-			err := cmd.callback(&conf)
+			err := cmd.callback(&conf, inputWords)
 			if err != nil {
-				fmt.Printf("Error: %v", err)
+				fmt.Printf("Error: %v\n", err)
 			}
 		} else {
 			fmt.Println("Unknown command")

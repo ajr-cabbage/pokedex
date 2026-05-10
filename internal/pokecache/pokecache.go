@@ -50,7 +50,7 @@ func (c *Cache) Add(key string, val []byte) {
 
 }
 
-func (c Cache) Get(key string) ([]byte, bool) {
+func (c *Cache) Get(key string) ([]byte, bool) {
 	c.m.Lock()
 	defer c.m.Unlock()
 	entry, ok := c.cacheData[key]
