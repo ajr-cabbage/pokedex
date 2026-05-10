@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ajr-cabbage/pokedex/internal/pokecache"
+	"github.com/ajr-cabbage/pokedex/internal/pokeapi"
 )
 
 func main() {
@@ -15,11 +16,11 @@ func main() {
 		next:     "https://pokeapi.co/api/v2/location-area",
 		previous: "",
 		cache:    pokecache.NewCache(5 * time.Second),
+		pokedex:  make(map[string]pokeapi.PokemonData),
 	}
 	for {
 		var input string
-		fmt.Print("Pokedex > ")
-		if scanner.Scan() {
+		fmt.Print("Pokedex > ") if scanner.Scan() {
 			input = scanner.Text()
 		}
 		inputWords := cleanInput(input)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"math/rand"
 
 	"github.com/ajr-cabbage/pokedex/internal/pokeapi"
 	"github.com/ajr-cabbage/pokedex/internal/pokecache"
@@ -19,6 +20,7 @@ type Config struct {
 	next     string
 	previous string
 	cache    *pokecache.Cache
+	pokedex	 map[string]pokeapi.PokemonData
 }
 
 func getCommands() map[string]cliCommand {
@@ -52,6 +54,12 @@ func getCommands() map[string]cliCommand {
 		name:        "explore",
 		description: "Displays list of pokemon in an area",
 		callback:    commandExplore,
+	}
+	
+	commands["catch"] = cliCommand{
+		name:	     "catch",
+		description: "Attempts to catch a pokemon and add it to the pokedex",
+		callback:    commandCatch,
 	}
 
 	return commands
@@ -157,5 +165,33 @@ func commandExplore(c *Config, params []string) error {
 	for _, encounter := range locData.PokemonEncounters {
 		fmt.Printf(" - %s\n", encounter.Pokemon.Name)
 	}
+	return nil
+}
+
+func commandCatch(c *Config, params []string) error {
+	if len(params) < 2 {
+		fmt.Println("Usage: catch <pokemon_name>")
+		return nil
+	}
+	
+	url := "https://pokeapi.co/api/v2/pokemon/" + params[1]
+	
+	pokemonData, err := pokeapi.GetPokemonData(url, c.cache)
+	if err != nil {
+		return err
+	}
+	
+	fmt.Printf("Throwing a Pokeball at %s\n", params[1])
+	
+	catchProbability := 1.0 - float64(pokemonData.BaseExperience/250)
+	catchRand := rand.Float64()
+	
+	if catchRand <= catchProbability {
+		fmt.Printf("%s was caught!", pokemonData.Name)
+		c.pokedex[pokemonData.Name] = pokemonData
+	} else {
+		fmt.Printf("%s excaped!", pokemonData.Name)
+	}
+	
 	return nil
 }
