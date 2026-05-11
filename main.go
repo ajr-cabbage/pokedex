@@ -20,8 +20,12 @@ func main() {
 	}
 	for {
 		var input string
-		fmt.Print("Pokedex > ") if scanner.Scan() {
+		fmt.Print("Pokedex > ")
+		if scanner.Scan() {
 			input = scanner.Text()
+		}
+		if input == "" {
+			continue
 		}
 		inputWords := cleanInput(input)
 		validCommands := getCommands()

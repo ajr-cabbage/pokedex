@@ -14,7 +14,7 @@ type cacheEntry struct {
 	createdAt time.Time
 	val       []byte
 }
-
+// initialize a cache
 func NewCache(interval time.Duration) *Cache {
 	cData := make(map[string]cacheEntry)
 	c := new(Cache)
@@ -22,7 +22,7 @@ func NewCache(interval time.Duration) *Cache {
 	go c.reapLoop(interval)
 	return c
 }
-
+// clean cache of old data
 func (c *Cache) reapLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -38,7 +38,7 @@ func (c *Cache) reapLoop(interval time.Duration) {
 		c.m.Unlock()
 	}
 }
-
+// add to cache
 func (c *Cache) Add(key string, val []byte) {
 	c.m.Lock()
 	defer c.m.Unlock()
@@ -49,7 +49,7 @@ func (c *Cache) Add(key string, val []byte) {
 	c.cacheData[key] = newEntry
 
 }
-
+// retrieve cached data
 func (c *Cache) Get(key string) ([]byte, bool) {
 	c.m.Lock()
 	defer c.m.Unlock()

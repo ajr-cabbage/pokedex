@@ -61,6 +61,18 @@ func getCommands() map[string]cliCommand {
 		description: "Attempts to catch a pokemon and add it to the pokedex",
 		callback:    commandCatch,
 	}
+	
+	commands["inspect"] = cliCommand{
+		name:	     "inspect",
+		description: "View the stats of pokemon you have caught",
+		callback:    commandInspect,
+	}
+	
+	commands["pokedex"] = cliCommand{
+		name:	     "pokedex",
+		description: "View the contents of your pokedex",
+		callback:    commandPokedex,
+	}
 
 	return commands
 }
@@ -146,7 +158,7 @@ func commandMapb(c *Config, params []string) error {
 	}
 	return nil
 }
-
+// display list of pokemon in a given area
 func commandExplore(c *Config, params []string) error {
 	if len(params) < 2 {
 		fmt.Println("Usage: explore <area_name>")
@@ -167,7 +179,7 @@ func commandExplore(c *Config, params []string) error {
 	}
 	return nil
 }
-
+// attempt to catch a pokemon
 func commandCatch(c *Config, params []string) error {
 	if len(params) < 2 {
 		fmt.Println("Usage: catch <pokemon_name>")
@@ -181,17 +193,58 @@ func commandCatch(c *Config, params []string) error {
 		return err
 	}
 	
-	fmt.Printf("Throwing a Pokeball at %s\n", params[1])
+	fmt.Printf("Throwing a Pokeball at %s...\n", params[1])
 	
-	catchProbability := 1.0 - float64(pokemonData.BaseExperience/250)
+	catchProbability := 1.0 - (float64(pokemonData.BaseExperience)/250.0)
 	catchRand := rand.Float64()
 	
 	if catchRand <= catchProbability {
-		fmt.Printf("%s was caught!", pokemonData.Name)
+		fmt.Printf("%s was caught!\n", pokemonData.Name)
 		c.pokedex[pokemonData.Name] = pokemonData
 	} else {
-		fmt.Printf("%s excaped!", pokemonData.Name)
+		fmt.Printf("%s excaped!\n", pokemonData.Name)
 	}
 	
 	return nil
 }
+// display stats for a pokemon in your pokedex
+func commandInspect(c *Config, params []string) error {
+	if len(params) < 2 {
+		fmt.Println("Usage: inspect <pokemon_name>")
+		return nil
+	}
+	
+	pokemonData, ok := c.pokedex[params[1]]
+	if !ok {
+		fmt.Println("you have not caught that pokemon")
+		return nil
+	}
+	
+	fmt.Printf("Name: %s/n", pokemonData.Name)
+	fmt.Printf("Height: %d/n", pokemonData.Height)
+	fmt.Printf("Weight: %d/n", pokemonData.Weight)
+	fmt.Println("Stats:")
+	for _, stat := range pokemonData.Stats {
+		fmt.Printf("  -%s: %d\n", stat.Stat.Name, stat.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, pokeType := range pokemonData.Types {
+		fmt.Printf("  -%s\n", pokeType.Type.Name)
+	}
+	
+	return nil
+}
+
+func commandPokedex(c *Config, params []string) error {
+	if len(c.pokedex) == 0 {
+		fmt.Println("Your pokedex is empty!")
+		return nil
+	}
+	
+	for key, _ := range c.pokedex {
+		fmt.Printf(" - %s\n", key)
+	}	
+	
+	return nil
+}
+
